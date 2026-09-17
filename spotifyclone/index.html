@@ -1,0 +1,322 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Clone</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #121212;
+            color: white;
+        }
+
+        /* Header */
+        header {
+            background: #000;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            color: #1db954;
+        }
+
+        /* Main */
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        .search {
+            width: 100%;
+            padding: 12px;
+            border-radius: 25px;
+            border: none;
+            outline: none;
+            margin-bottom: 25px;
+        }
+
+        .songs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+        }
+
+        .song {
+            background: #181818;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .song img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .song h3 {
+            margin: 12px 0 5px;
+        }
+
+        .song p {
+            color: #aaa;
+        }
+
+        button {
+            background: #1db954;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            margin-top: 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #1ed760;
+        }
+
+        /* Player */
+        .player {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #181818;
+            padding: 15px;
+            text-align: center;
+            border-top: 1px solid #333;
+        }
+
+        .player h3 {
+            margin-bottom: 10px;
+        }
+
+        input[type="range"] {
+            width: 70%;
+            accent-color: #1db954;
+        }
+
+        .controls button {
+            margin: 5px;
+            padding: 10px 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>🎵 My Spotify</h1>
+</header>
+
+<div class="container">
+
+    <input
+        type="text"
+        class="search"
+        id="search"
+        placeholder="Search songs..."
+        onkeyup="searchSong()"
+    >
+
+    <div class="songs">
+
+        <div class="song">
+            <img src="https://picsum.photos/300?random=1">
+            <h3>Summer Vibes</h3>
+            <p>Artist One</p>
+            <button onclick="playSong('song1.mp3', 'Summer Vibes')">
+                ▶ Play
+            </button>
+        </div>
+
+        <div class="song">
+            <img src="https://picsum.photos/300?random=2">
+            <h3>Night Music</h3>
+            <p>Artist Two</p>
+            <button onclick="playSong('song2.mp3', 'Night Music')">
+                ▶ Play
+            </button>
+        </div>
+
+        <div class="song">
+            <img src="https://picsum.photos/300?random=3">
+            <h3>Dream World</h3>
+            <p>Artist Three</p>
+            <button onclick="playSong('song3.mp3', 'Dream World')">
+                ▶ Play
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- Music Player -->
+<div class="player">
+
+    <h3 id="currentSong">No Song Playing</h3>
+
+    <audio id="audio"></audio>
+
+    <div class="controls">
+        <button onclick="previousSong()">⏮</button>
+        <button onclick="togglePlay()" id="playBtn">▶</button>
+        <button onclick="nextSong()">⏭</button>
+    </div>
+
+    <br>
+
+    <input
+        type="range"
+        id="progress"
+        value="0"
+        min="0"
+        max="100"
+    >
+
+</div>
+
+<script>
+
+    const audio = document.getElementById("audio");
+    const currentSong = document.getElementById("currentSong");
+    const playBtn = document.getElementById("playBtn");
+    const progress = document.getElementById("progress");
+
+    const songs = [
+        {
+            name: "Summer Vibes",
+            file: "song1.mp3"
+        },
+        {
+            name: "Night Music",
+            file: "song2.mp3"
+        },
+        {
+            name: "Dream World",
+            file: "song3.mp3"
+        }
+    ];
+
+    let currentIndex = 0;
+
+    function playSong(file, name) {
+        audio.src = file;
+        currentSong.innerText = name;
+
+        audio.play();
+
+        playBtn.innerText = "⏸";
+    }
+
+    function togglePlay() {
+
+        if (audio.paused) {
+            audio.play();
+            playBtn.innerText = "⏸";
+        } else {
+            audio.pause();
+            playBtn.innerText = "▶";
+        }
+
+    }
+
+    function nextSong() {
+
+        currentIndex++;
+
+        if (currentIndex >= songs.length) {
+            currentIndex = 0;
+        }
+
+        playSong(
+            songs[currentIndex].file,
+            songs[currentIndex].name
+        );
+    }
+
+    function previousSong() {
+
+        currentIndex--;
+
+        if (currentIndex < 0) {
+            currentIndex = songs.length - 1;
+        }
+
+        playSong(
+            songs[currentIndex].file,
+            songs[currentIndex].name
+        );
+    }
+
+    /* Progress Bar */
+
+    audio.addEventListener("timeupdate", function() {
+
+        if (audio.duration) {
+
+            progress.value =
+                (audio.currentTime / audio.duration) * 100;
+
+        }
+
+    });
+
+    progress.addEventListener("input", function() {
+
+        if (audio.duration) {
+
+            audio.currentTime =
+                (progress.value / 100) * audio.duration;
+
+        }
+
+    });
+
+    /* Search */
+
+    function searchSong() {
+
+        let search =
+            document.getElementById("search")
+            .value
+            .toLowerCase();
+
+        let songCards =
+            document.querySelectorAll(".song");
+
+        songCards.forEach(function(card) {
+
+            let name =
+                card.querySelector("h3")
+                .innerText
+                .toLowerCase();
+
+            if (name.includes(search)) {
+                card.style.display = "block";
+            } else {
+                card.style.display = "none";
+            }
+
+        });
+
+    }
+
+</script>
+
+</body>
+</html>
+```
